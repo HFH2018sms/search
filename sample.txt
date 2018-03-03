@@ -1,0 +1,53 @@
+search(number, {})
+select(number, search(number))
+
+{
+  prev_data: {
+    current_page: [],
+    hisotry: [links]
+  },
+}
+
+[page {
+  url: ""
+  display:  ""
+}]
+
+select 1, prev_data
+
+prev_data -> link -> scrape -> text
+
+
+webpage [{link, title}, history]
+
+
+responses: if you call search split it by "\n" and send them
+search string
+1, title: ...
+description: ....
+
+2, title: ...
+description: ....
+
+2, title: ...
+description: ....
+
+page 1 of 200 shown
+
+goto 1, 2, 3
+page 2..200
+
+webpage string
+...... [link 1]pooh ..... [link 2]eeyore .....
+
+goto link
+page 2.... segment max
+
+goto 2 |> yours() |>  pooh select encoded_json_1 |> mine() |> encoded_json_2
+
+encoded_json_1
+  history: links
+  cmd: "select"
+  arg
+
+links [url1, url2, url3 ...]
