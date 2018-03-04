@@ -46,7 +46,7 @@ ex_st = False
 args = decoded["args"]
 
 ret = {}
-if args[0].capitalize() == "EXIT":
+if args[0].upper() == "EXIT":
     ret = json.dumps({"new_data": "[]", "to_display": 'What do you wanna do now?', "exit": True})
 else:
     if len(args) == 1:
