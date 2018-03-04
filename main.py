@@ -65,6 +65,7 @@ if decoded["command"] == "search":
             parser.feed(str(response.read()))
         res = parser.res
 
+prev_data = json.dumps(prev_data)
 ret = json.dumps({"new_data": prev_data, "to_display": ''.join(res)})
 
 print(ret)
