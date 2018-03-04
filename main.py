@@ -43,7 +43,7 @@ ex_st = False
 
 args = decoded["args"]
 
-ret
+ret = {}
 if args[0].capitalize() == "EXIT":
     ret = json.dumps({"new_data": "[]", "to_display": 'What do you wanna do now?', "exit": True})
 else:
