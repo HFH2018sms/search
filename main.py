@@ -43,33 +43,60 @@ def split_arrays(arr, num):
         return ["".join(arr)]
 
 res = []
-prev_data = []
+prev_data = {"links": [], "current_page": "", "pages": []}
 ex_st = False
-if decoded["command"] == "search":
-    if len(decoded["args"]) == 4:
-        links = json.loads(decoded["prev_data"])
-        url = links[int(decoded["args"][3]) - 1]
-        parser = MyHTMLParser()
 
-        with urllib.request.urlopen(url) as response:
-            parser.feed(str(response.read()))
-        res = parser.res[:153]
-        prev_data = split_arrays(parser.res, 153)[1:]
-        ex_st = False
-    else:
-        subscription_key = os.environ['MKEY']
-        search_url = "https://api.cognitive.microsoft.com/bing/v7.0/search?q=%-s&textDecorations=%-s&count=5&offset=%-s"
-        headers = {"Ocp-Apim-Subscription-Key" : subscription_key}
+args = decoded["args"]
+if (args[1].isdigit() == False):
+    arr1 = args[1:]
+    arr2 = []
+    arr2.append(args[0])
+    arr2.append("0")
+    arr2 += arr1
+    args = arr2
 
-        if len(decoded["args"]) == 1:
-            decoded["args"].append("0")
-        with urllib.request.urlopen(urllib.request.Request(url = search_url % (decoded["args"][0], "True", str(int(decoded["args"][1]) * 5)), headers = headers)) as response:
-            ret = json.loads(response.read())
-            ret["webPages"]
-            for idx, item in enumerate(ret["webPages"]["value"]):
-                res.append(("[%-s] " % idx) + item['url'] + ":\n")
-                res.append(item['snippet'] + "\n")
-                prev_data.append(item['url'])
+# query = args[0]
+pd = json.loads(decoded["prev_data"])
+
+# [query, page]
+if len(args) == 2:
+    search_page = args[1]
+    subscription_key = os.environ['MKEY']
+    search_url = "https://api.cognitive.microsoft.com/bing/v7.0/search?q=%-s&textDecorations=%-s&count=5&offset=%-s"
+    headers = {"Ocp-Apim-Subscription-Key" : subscription_key}
+
+    num_current_page = int(search_page)
+    with urllib.request.urlopen(urllib.request.Request(url = search_url % (args[0], "True", str(num_current_page * 5)), headers = headers)) as response:
+        ret = json.loads(response.read())
+        ret["webPages"]
+        for idx, item in enumerate(ret["webPages"]["value"]):
+            res.append(("[%-s] " % idx) + item['url'] + ":\n")
+            res.append(item['snippet'] + "\n")
+            res.append("page %-d shown" % (num_current_page))
+            prev_data["links"].append(item['url'])
+# [query, page, select, link_n] -> use prev_data[links]
+# [query, page, select, link_n, page_n] -> use prev_data[pages]
+# select = args[2]
+# link_n = args[3]
+# page_n = args[4]
+elif len(args) > 2:
+    links = pd["links"]
+    link_n = args[3]
+    url = links[int(link_n) - 1]
+
+    parser = MyHTMLParser()
+
+    with urllib.request.urlopen(url) as response:
+        parser.feed(str(response.read()))
+
+    page_n = "0"
+    if len(args) == 5:
+        page_n = args[4]
+    pages = split_arrays(parser.res, 140)
+    prev_data = {"links": links, "current_page": pages[int(page_n)], "pages": pages}
+    res = pages[int(page_n)]
+    res += "page %-d of %-d pages" % (int(page_n), len(pages))
+    ex_st = False
 
 prev_data = json.dumps(prev_data)
 ret = json.dumps({"new_data": prev_data, "to_display": ''.join(res), "exit": ex_st})
