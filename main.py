@@ -48,6 +48,8 @@ if decoded["command"] == "search":
         search_url = "https://api.cognitive.microsoft.com/bing/v7.0/search?q=%-s&textDecorations=%-s&count=5&offset=%-s"
         headers = {"Ocp-Apim-Subscription-Key" : subscription_key}
 
+        if len(decoded["args"]) == 1:
+            decoded["args"].append("0")
         with urllib.request.urlopen(urllib.request.Request(url = search_url % (decoded["args"][0], "True", str(int(decoded["args"][1]) * 5 + 1)), headers = headers)) as response:
             ret = json.loads(response.read())
             ret["webPages"]
