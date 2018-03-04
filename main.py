@@ -73,8 +73,8 @@ else:
             for idx, item in enumerate(ret["webPages"]["value"]):
                 res.append(("[%-s] " % idx) + item['url'] + ":\n")
                 res.append(item['snippet'] + "\n")
-                res.append("page %-d shown" % (num_current_page))
                 prev_data["links"].append(item['url'])
+            res.append("page %-d shown" % (num_current_page))
     # [query, page, select, link_n] -> use prev_data[links]
     # [query, page, select, link_n, page_n] -> use prev_data[pages]
     # select = args[2]
