@@ -4,17 +4,6 @@ import json
 import urllib.request
 from html.parser import HTMLParser
 
-# response.raise_for_status()
-# search_results = response.json()
-# print(search_results)
-
-# decoded = json.loads(sys.argv[1])
-# url
-# if decoded["cmd"] == "search":
-    # url = "https://%-s" % decoded["query"]
-# elif decoded["cmd"] == "select":
-    # url = decoded["links"][decoded["args"][0] - 1]
-
 class MyHTMLParser(HTMLParser):
     res = ""
     num_of_links = 0
@@ -36,30 +25,44 @@ class MyHTMLParser(HTMLParser):
         if len(self.tags) > 0:
             tag = self.tags[-1]
             if tag in ["title","h1","h2","h3","h4","h5","h6","h7"]:
-                self.res += data + "\n"
-            elif tag in ["p", "b", "strong", "i", "em", "mark", "small", "del", "ins", "sub", "li"]:
                 self.res += data
-            elif tag in ["a"]:
-                self.res += ("[%-s]" % str(self.num_of_links)) + data
-                self.num_of_links += 1
+            elif tag in ["p", "b", "strong", "i", "em", "mark", "small", "del", "ins", "sub", "li", "a"]:
+                self.res += data
+            # elif tag in ["a"]:
+                # self.res += ("[%-s]" % str(self.num_of_links)) + data
+                # self.num_of_links += 1
 
-    def get_res(self):
-        return self.res
+decoded = json.loads(sys.argv[1])
 
-parser = MyHTMLParser()
+def split_arrays(arr, num):
+    if len(arr) > num:
+        return ["".join(arr[:num])] + (split_arrays(arr[num:], num))
+    else:
+        return ["".join(arr)]
 
-# with urllib.request.urlopen('https://www.googleapis.com/customsearch/v1?key=%-s&q=hello' % gkey) as response:
-    # parser.feed(str(response.read()))
+res = []
+prev_data = []
+if decoded["command"] == "search":
+    if len(decoded["args"]) == 2:
+        subscription_key = os.environ['MKEY']
+        search_url = "https://api.cognitive.microsoft.com/bing/v7.0/search?q=%-s&textDecorations=%-s&count=5&offset=%-s"
+        headers = {"Ocp-Apim-Subscription-Key" : subscription_key}
 
-search_url = "https://api.cognitive.microsoft.com/bing/v7.0/search?q=%-s&textDecorations=%-s"
-subscription_key = os.environ['MKEY']
-headers = {"Ocp-Apim-Subscription-Key" : subscription_key}
+        with urllib.request.urlopen(urllib.request.Request(url = search_url % (decoded["args"][0], "True", str(int(decoded["args"][1]) * 5 + 1)), headers = headers)) as response:
+            ret = json.loads(response.read())
+            ret["webPages"]
+            for idx, item in enumerate(ret["webPages"]["value"]):
+                res.append(("[%-s] " % idx) + item['url'] + ":\n")
+                res.append(item['snippet'] + "\n")
+                prev_data.append(item['url'])
+    elif len(decoded["args"]) == 4:
+        url = decoded["prev_data"][int(decoded["args"][3]) - 1]
+        parser = MyHTMLParser()
 
-with urllib.request.urlopen(urllib.request.Request(url = search_url % ("hello", "True"), headers = headers)) as response:
-    res = json.loads(response.read())
-    for item in res["webPages"]["value"]:
-        print(item['url'])
-        print(item['snippet'])
+        with urllib.request.urlopen(url) as response:
+            parser.feed(str(response.read()))
+        res = parser.res
 
-# print(parser.res)
-# print(parser.links)
+ret = json.dumps({"new_data": prev_data, "to_display": ''.join(res)})
+
+print(ret)
