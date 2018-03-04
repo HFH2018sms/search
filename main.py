@@ -30,9 +30,6 @@ class MyHTMLParser(HTMLParser):
                 self.res += data
             elif tag in ["p", "b", "strong", "i", "em", "mark", "small", "del", "ins", "sub", "li", "a"]:
                 self.res += data
-            # elif tag in ["a"]:
-                # self.res += ("[%-s]" % str(self.num_of_links)) + data
-                # self.num_of_links += 1
 
 decoded = json.loads(sys.argv[1])
 
@@ -47,7 +44,9 @@ prev_data = {"links": [], "current_page": "", "pages": []}
 ex_st = False
 
 args = decoded["args"]
-if (args[1].isdigit() == False):
+if len(args) == 1:
+    args.append("0")
+elif args[1].isdigit() == False:
     arr1 = args[1:]
     arr2 = []
     arr2.append(args[0])
@@ -56,7 +55,6 @@ if (args[1].isdigit() == False):
     args = arr2
 
 # query = args[0]
-pd = json.loads(decoded["prev_data"])
 
 # [query, page]
 if len(args) == 2:
@@ -80,6 +78,7 @@ if len(args) == 2:
 # link_n = args[3]
 # page_n = args[4]
 elif len(args) > 2:
+    pd = json.loads(decoded["prev_data"])
     links = pd["links"]
     link_n = args[3]
     url = links[int(link_n) - 1]
