@@ -42,6 +42,7 @@ def split_arrays(arr, num):
 
 res = []
 prev_data = []
+ex_st = False
 if decoded["command"] == "search":
     if len(decoded["args"]) == 4:
         links = json.loads(decoded["prev_data"])
@@ -52,6 +53,7 @@ if decoded["command"] == "search":
             parser.feed(str(response.read()))
         res = parser.res[:153]
         prev_data = split_arrays(parser.res, 153)[1:]
+        ex_st = False
     else:
         subscription_key = os.environ['MKEY']
         search_url = "https://api.cognitive.microsoft.com/bing/v7.0/search?q=%-s&textDecorations=%-s&count=5&offset=%-s"
@@ -68,6 +70,6 @@ if decoded["command"] == "search":
                 prev_data.append(item['url'])
 
 prev_data = json.dumps(prev_data)
-ret = json.dumps({"new_data": prev_data, "to_display": ''.join(res), "exit": True})
+ret = json.dumps({"new_data": prev_data, "to_display": ''.join(res), "exit": ex_st})
 
 print(ret)
