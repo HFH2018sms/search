@@ -43,27 +43,27 @@ def split_arrays(arr, num):
 res = []
 prev_data = []
 if decoded["command"] == "search":
-    if len(decoded["args"]) == 2:
-        subscription_key = os.environ['MKEY']
-        search_url = "https://api.cognitive.microsoft.com/bing/v7.0/search?q=%-s&textDecorations=%-s&count=5&offset=%-s"
-        headers = {"Ocp-Apim-Subscription-Key" : subscription_key}
-
-        if len(decoded["args"]) == 1:
-            decoded["args"].append("0")
-        with urllib.request.urlopen(urllib.request.Request(url = search_url % (decoded["args"][0], "True", str(int(decoded["args"][1]) * 5 + 1)), headers = headers)) as response:
-            ret = json.loads(response.read())
-            ret["webPages"]
-            for idx, item in enumerate(ret["webPages"]["value"]):
-                res.append(("[%-s] " % idx) + item['url'] + ":\n")
-                res.append(item['snippet'] + "\n")
-                prev_data.append(item['url'])
-    elif len(decoded["args"]) == 4:
+    if len(decoded["args"]) == 4:
         url = decoded["prev_data"][int(decoded["args"][3]) - 1]
         parser = MyHTMLParser()
 
         with urllib.request.urlopen(url) as response:
             parser.feed(str(response.read()))
         res = parser.res
+    else:
+        subscription_key = os.environ['MKEY']
+        search_url = "https://api.cognitive.microsoft.com/bing/v7.0/search?q=%-s&textDecorations=%-s&count=5&offset=%-s"
+        headers = {"Ocp-Apim-Subscription-Key" : subscription_key}
+
+        if len(decoded["args"]) == 1:
+            decoded["args"].append("0")
+        with urllib.request.urlopen(urllib.request.Request(url = search_url % (decoded["args"][0], "True", str(int(decoded["args"][1]) * 5)), headers = headers)) as response:
+            ret = json.loads(response.read())
+            ret["webPages"]
+            for idx, item in enumerate(ret["webPages"]["value"]):
+                res.append(("[%-s] " % idx) + item['url'] + ":\n")
+                res.append(item['snippet'] + "\n")
+                prev_data.append(item['url'])
 
 prev_data = json.dumps(prev_data)
 ret = json.dumps({"new_data": prev_data, "to_display": ''.join(res)})
