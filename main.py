@@ -28,9 +28,6 @@ class MyHTMLParser(HTMLParser):
                 self.res += data
             elif tag in ["p", "b", "strong", "i", "em", "mark", "small", "del", "ins", "sub", "li", "a"]:
                 self.res += data
-            # elif tag in ["a"]:
-                # self.res += ("[%-s]" % str(self.num_of_links)) + data
-                # self.num_of_links += 1
 
 decoded = json.loads(sys.argv[1])
 
