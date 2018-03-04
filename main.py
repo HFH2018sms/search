@@ -100,7 +100,7 @@ else:
         prev_data = {"links": links, "current_page": pages[int(page_n)], "pages": pages}
         res = pages[int(page_n)]
         res += "page %-d of %-d pages" % (int(page_n), len(pages))
-        ex_st = True
+        ex_st = False
 
     prev_data = json.dumps(prev_data)
     ret = json.dumps({"new_data": prev_data, "to_display": ''.join(res), "exit": ex_st})
