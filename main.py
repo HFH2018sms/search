@@ -44,7 +44,8 @@ res = []
 prev_data = []
 if decoded["command"] == "search":
     if len(decoded["args"]) == 4:
-        url = decoded["prev_data"][int(decoded["args"][3]) - 1]
+        links = json.loads(decoded["prev_data"])
+        url = links[int(decoded["args"][3]) - 1]
         parser = MyHTMLParser()
 
         with urllib.request.urlopen(url) as response:
@@ -66,6 +67,6 @@ if decoded["command"] == "search":
                 prev_data.append(item['url'])
 
 prev_data = json.dumps(prev_data)
-ret = json.dumps({"new_data": prev_data, "to_display": ''.join(res)})
+ret = json.dumps({"new_data": prev_data, "to_display": ''.join(res), "exit": True})
 
 print(ret)
