@@ -52,7 +52,8 @@ if decoded["command"] == "search":
 
         with urllib.request.urlopen(url) as response:
             parser.feed(str(response.read()))
-        res = parser.res
+        res = parser.res[:153]
+        prev_data = split_arrays(parser.res, 153)[1:]
     else:
         subscription_key = os.environ['MKEY']
         search_url = "https://api.cognitive.microsoft.com/bing/v7.0/search?q=%-s&textDecorations=%-s&count=5&offset=%-s"
